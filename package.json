@@ -1,0 +1,45 @@
+{
+	"name": "super-session",
+	"version": "1.0.0",
+	"description": "The best of autentication with token and session on back-end in same module. Made with love to NodeJS.",
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"scripts": {
+		"build": "tsc",
+		"test": "mocha --reporter spec"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/aslamcode/super-session.git"
+	},
+	"keywords": [
+		"express-session",
+		"super-session",
+		"session",
+		"token",
+		"web token",
+		"node-session"
+	],
+	"author": "Guilherme Martins Arantes",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/aslamcode/super-session/issues"
+	},
+	"homepage": "https://github.com/aslamcode/super-session#readme",
+	"devDependencies": {
+		"chai": "^4.1.2",
+		"mocha": "^5.2.0",
+		"tesk": "^1.0.2",
+		"typescript": "^3.0.1"
+	},
+	"dependencies": {
+		"@types/express": "^4.16.0",
+		"@types/mongodb": "^3.1.17",
+		"@types/node": "^10.12.0",
+		"@types/node-cron": "^2.0.0",
+		"jsonwebtoken": "^8.4.0",
+		"moment": "^2.23.0",
+		"mongodb": "^3.1.10",
+		"node-cron": "^2.0.3"
+	}
+}
