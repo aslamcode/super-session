@@ -7,6 +7,18 @@ The best of autentication with token and session on back-end in same module. Mad
 $ npm install --save super-session
 ```
 
+## Guide
+* [Quick usage](#quick-usage)
+* [Why use](#why-use)
+* [Configure](#configure)
+* [Decode](#decode)
+* [Create session](#create-session)
+* [Delete user sessions](#delete-user-sessions)
+* [Logout](#logout)
+* [Tests](#tests)
+* [Related projects](#related-projects)
+* [License](#license)
+
 ## Quick usage
 
 ### Back-end
@@ -29,11 +41,11 @@ const superSessionOptions = {
         dbName: 'your db name like test or production' // Necessary
     },
     secret: 'your secret', // Default is get miliseconds since 1970
-    tokenHeaderName: 'x-access-token', // Default is access-token
-    duration: 15, // Default is 14 days
-    mult: true, // Default is false
-    reqAttribute: 'session', // Default is session to access user data use req.session. This value can be changed to any word, then use req.anything
-    collectionName: 'xsessions' // Default is sessions, just work with connection to mongo
+    tokenHeaderName: 'x-access-token',
+    duration: 15,
+    mult: true,
+    reqAttribute: 'session',
+    collectionName: 'xsessions'
 };
 
 // Configure the super session
@@ -117,17 +129,6 @@ intercept(req, next) {
 }
 ``` 
 
-## Guide
-* [Why use](#why-use)
-* [Configure](#configure)
-* [Decode](#decode)
-* [Create session](#create-session)
-* [Delete user sessions](#delete-user-sessions)
-* [Logout](#logout)
-* [Tests](#tests)
-* [Related projects](#related-projects)
-* [License](#license)
-
 ## Why use
 It's fast cause don't send the user data to front and save a session on cache. It's Safe cause save the session on your database.
 And have few options to use and control multiples sessions or a unique session by user.
@@ -140,17 +141,16 @@ this.app.use(superSession.decode());
 
 // Create the options object
 const superSessionOptions = {
-    // Connection is optional, without connection the session will be saved on cache
     connection: {
-        dbUrl: 'your mongo connection', // Necessary
-        dbName: 'your db name like test or production' // Necessary
+        dbUrl: 'your mongo connection',
+        dbName: 'your db name like test or production'
     },
-    secret: 'your secret', // Default is get miliseconds since 1970
-    tokenHeaderName: 'x-access-token', // Default is access-token
-    duration: 15, // Default is 14 days
-    mult: true, // Default is false
-    reqAttribute: 'session', // Default is session to access user data use req.session. This value can be changed to any word, then use req.anything
-    collectionName: 'xsessions' // Default is sessions, just work with connection to mongo
+    secret: 'your secret',
+    tokenHeaderName: 'x-access-token',
+    duration: 15,
+    mult: true,
+    reqAttribute: 'session',
+    collectionName: 'xsessions'
 };
 
 // Configure the super session
@@ -158,6 +158,38 @@ superSession.configure(superSessionOptions, () => {
     // Continue your server configuration
     // ...
 });
+```
+
+## Options
+Avaliable options bellow to call configure function
+```json
+{
+    // Connection is optional, without connection the session will be saved on cache
+    "connection": {
+        "dbUrl": "your mongo connection", // Necessary
+        "dbName": "your db name like test or production" // Necessary
+    },
+
+    // Optional, default is get miliseconds since 1970
+    "secret": "your secret",
+
+    // Optional, default is access-token
+    "tokenHeaderName": "x-access-token",
+
+    // Optional, default is 14
+    "duration": 15,
+
+    // Optional, default is false
+    // When true, the user can log in many computers and browsers and all sessions will be active
+    "mult": true, 
+
+    // Opitional, default is session. Can be change to any word.
+    // If change to user, the session data will be in req.user
+    "reqAttribute": "session",
+
+    // Optional, default is sessions. The collection name that store the sessions
+    "collectionName": "xsessions"
+}
 ```
 
 ## Decode
