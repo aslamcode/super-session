@@ -217,7 +217,7 @@ superSession.createSession(sessionData._id, sessionData)
 ```
 
 ## Delete user sessions
-we've used the 'user id' to delete all user sessions
+We've used the 'user id' to delete all user sessions
 ```javascript
 superSession.deleteUserSessions('USER_ID')
     .then(() => {
