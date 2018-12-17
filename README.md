@@ -49,7 +49,7 @@ const superSessionOptions = {
 };
 
 // Configure the super session
-superSession.configure(superSessionOptions, () => {
+superSession.configure(superSessionOptions).then(() => {
     createRoutes();
 });
 
@@ -159,7 +159,7 @@ const superSessionOptions = {
 };
 
 // Configure the super session
-superSession.configure(superSessionOptions, () => {
+superSession.configure(superSessionOptions).then(() => {
     // Continue your server configuration
     // ...
 });
