@@ -9,7 +9,7 @@ $ npm install --save super-session
 
 ## Quick usage
 
-Back-end
+### Back-end
 ```javascript
 const express = require('express');
 const { Router } = require('express');
@@ -21,6 +21,7 @@ const router = Router();
 // Set to use super session
 this.app.use(superSession.decode());
 
+// Create the options object
 const superSessionOptions = {
     // Connection is optional, without connection the session will be saved on cache
     connection: {
@@ -87,37 +88,33 @@ function createRoutes() {
 }
 ```
 
-Front-end
+### Front-end
+We will need request to the back-end and get the response, like this. Just example using angular HTTP client
 ```javascript
-    // We will need request to the back-end and get the response, like this
-    // { userToken: token, userData: sessionData, logged: true }
-    
-    // Just example using angular HTTP client
-    // ...
-    http.post(`${API}/users/login`, { user: 'thor@asgard.com', password: 'loki' })
-        .subscribe((res) => {
-            storage.set('userToken', res.userToken); // Save the user token on storage
-        });
+http.post(`${API}/users/login`, { user: 'thor@asgard.com', password: 'loki' })
+    .subscribe((res) => {
+        storage.set('userToken', res.userToken); // Save the user token on storage
+    });
 
-    // And last we will get the token on storage and put on headers to each request
-    // To do this, use the interceptor
-    // The header name would be equal the option tokenHeaderName on back-end
-    // Example
-    // ...
-    intercept(req, next) {
-        return Observable.create((obs) => {
-            const token = storage.get('userToken');
-            if (token) {
-                const cloneReq = req.clone({
-                    setHeaders: {
-                        'x-access-token': token
-                    }
-                });
-                return obs.next(next.handle(cloneReq));
-            }
-            return obs.next(next.handle(req));
-        });
-    }
+// And last we will get the token on storage and put on headers to each request
+// To do this, use the interceptor
+// The header name would be equal the option tokenHeaderName on back-end
+// Example
+// ...
+intercept(req, next) {
+    return Observable.create((obs) => {
+        const token = storage.get('userToken');
+        if (token) {
+            const cloneReq = req.clone({
+                setHeaders: {
+                    'x-access-token': token
+                }
+            });
+            return obs.next(next.handle(cloneReq));
+        }
+        return obs.next(next.handle(req));
+    });
+}
 ``` 
 
 ## Guide
@@ -136,80 +133,75 @@ It's fast cause don't send the user data to front and save a session on cache. I
 And have few options to use and control multiples sessions or a unique session by user.
 
 ## Configure
+Configure the super session, will need configure in express file
 ```javascript
-    // Configure the super session, will need configure in express file
+// Set to use super session
+this.app.use(superSession.decode());
+
+// Create the options object
+const superSessionOptions = {
+    // Connection is optional, without connection the session will be saved on cache
+    connection: {
+        dbUrl: 'your mongo connection', // Necessary
+        dbName: 'your db name like test or production' // Necessary
+    },
+    secret: 'your secret', // Default is get miliseconds since 1970
+    tokenHeaderName: 'x-access-token', // Default is access-token
+    duration: 15, // Default is 14 days
+    mult: true, // Default is false
+    reqAttribute: 'session', // Default is session to access user data use req.session. This value can be changed to any word, then use req.anything
+    collectionName: 'xsessions' // Default is sessions, just work with connection to mongo
+};
+
+// Configure the super session
+superSession.configure(superSessionOptions, () => {
+    // Continue your server configuration
     // ...
-
-    // Set to use super session
-    this.app.use(superSession.decode());
-
-    const superSessionOptions = {
-        // Connection is optional, without connection the session will be saved on cache
-        connection: {
-            dbUrl: 'your mongo connection', // Necessary
-            dbName: 'your db name like test or production' // Necessary
-        },
-        secret: 'your secret', // Default is get miliseconds since 1970
-        tokenHeaderName: 'x-access-token', // Default is access-token
-        duration: 15, // Default is 14 days
-        mult: true, // Default is false
-        reqAttribute: 'session', // Default is session to access user data use req.session. This value can be changed to any word, then use req.anything
-        collectionName: 'xsessions' // Default is sessions, just work with connection to mongo
-    };
-
-    // Configure the super session
-    superSession.configure(superSessionOptions, () => {
-        // Continue your server configuration
-        // ...
-    });
+});
 ```
 
 ## Decode
+Set to use the super session decode on express app
 ```javascript
-    // Set to use decode the super session
-    // The server need this to decode the token of user
-    this.app.use(superSession.decode());
+// The server need this to decode the token of user
+this.app.use(superSession.decode());
 ```
 
 ## Create session
+Is necessary use a unique identifier to create the session, like _id or email. Any unique identifier
 ```javascript
-    // Is necessary use a unique identifier to create the session, like _id or email
-    // Any unique identifier
+// The session data, put anything
+const sessionData = { _id: '5c0fa99d2c75fb077adbb8ec', name: 'Thor', email: 'thor@asgard.com', permissions: ['list-users', 'all'] };
 
-    // The session data, put anything
-    const sessionData = { _id: '5c0fa99d2c75fb077adbb8ec', name: 'Thor', email: 'thor@asgard.com', permissions: ['list-users', 'all'] };
-
-    superSession.createSession(sessionData._id, sessionData)
-        .then((token) => {
-            console.log('userToken', token);
-        });
+superSession.createSession(sessionData._id, sessionData)
+    .then((token) => {
+        console.log('userToken', token);
+    });
 ```
 
 ## Delete user sessions
+Use the session id to delete all sessions of a user. We was used the user id, then send the userId
 ```javascript
-    // Use the session id to delete all sessions of a user. We was used the user id, then send the userId
-    superSession.deleteUserSessions('5c0fa99d2c75fb077adbb8ec')
-        .then(() => {
-            console.log('Delete all sessions of user 5c0fa99d2c75fb077adbb8ec');
-        });
-    
+superSession.deleteUserSessions('5c0fa99d2c75fb077adbb8ec')
+    .then(() => {
+        console.log('Delete all sessions of user 5c0fa99d2c75fb077adbb8ec');
+    });
 ```
 
 ## Logout
+To user make logout, just check exist the session and call req.session.logout() (It's a promise)
 ```javascript
-    // To user make logout, just check exist the session
-    // And call req.session.logout() (It's a promise)
-    router.get('/users/logout', function (req, res) {
-        // If user is logged, make logout
-        if (req.user) {
-            req.session.logout().then(() => {
-                return res.json({ logged: false });
-            });
-        }
-        else {
-            res.status(401).json({}); // User is not logged
-        }
-    });
+router.get('/users/logout', function (req, res) {
+    // If user is logged, make logout
+    if (req.user) {
+        req.session.logout().then(() => {
+            return res.json({ logged: false });
+        });
+    }
+    else {
+        res.status(401).json({}); // User is not logged
+    }
+});
 ``` 
 
 ## Tests
