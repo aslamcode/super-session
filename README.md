@@ -76,7 +76,12 @@ function createRoutes() {
         // Any unique identifier
 
         // The session data, put anything
-        const sessionData = { _id: '5c0fa99d2c75fb077adbb8ec', name: 'Thor', email: 'thor@asgard.com', permissions: ['list-users', 'all'] };
+        const sessionData = { 
+            _id: '5c0fa99d2c75fb077adbb8ec', 
+            name: 'Thor', 
+            email: 'thor@asgard.com', 
+            permissions: ['list-users', 'all'] 
+        };
 
         // Creating the session using the user._id
         superSession.createSession(sessionData._id, sessionData)
