@@ -254,9 +254,13 @@ class SuperSession {
     async configure(options: ConfigureOptions): Promise<void> {
         const { secret, duration, tokenHeaderName, mult, reqAttribute, collectionName, connection } = options;
 
-        if (secret != undefined) {
+        if (secret == undefined || secret == '') {
+            throw 'Secret option is necessary on superSession.configure() options object.'
+        }
+        else {
             this.secret = secret;
         }
+
         if (tokenHeaderName != undefined) {
             this.tokenHeaderName = tokenHeaderName;
         }
@@ -424,7 +428,7 @@ interface ConfigureOptions {
         dbUrl: string;
         dbName: string;
     };
-    secret?: string;
+    secret: string;
     tokenHeaderName?: string;
     duration?: string | number;
     mult?: boolean;

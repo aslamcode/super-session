@@ -214,7 +214,10 @@ class SuperSession {
     configure(options) {
         return __awaiter(this, void 0, void 0, function* () {
             const { secret, duration, tokenHeaderName, mult, reqAttribute, collectionName, connection } = options;
-            if (secret != undefined) {
+            if (secret == undefined || secret == '') {
+                throw 'Secret option is necessary on superSession.configure() options object.';
+            }
+            else {
                 this.secret = secret;
             }
             if (tokenHeaderName != undefined) {

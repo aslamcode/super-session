@@ -40,7 +40,7 @@ const superSessionOptions = {
         dbUrl: 'your mongo connection', // Necessary
         dbName: 'your db name like test or production' // Necessary
     },
-    secret: 'your secret', // Default is get miliseconds since 1970
+    secret: 'your secret', // Necessary
     tokenHeaderName: 'x-access-token',
     duration: 15,
     mult: true,
@@ -175,7 +175,7 @@ Avaliable options bellow to call configure function
         "dbName": "your db name like test or production" // Necessary
     },
 
-    // Optional, default is get miliseconds since 1970
+    // Necessary
     "secret": "your secret",
 
     // Optional, default is access-token

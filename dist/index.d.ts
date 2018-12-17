@@ -87,7 +87,7 @@ interface ConfigureOptions {
         dbUrl: string;
         dbName: string;
     };
-    secret?: string;
+    secret: string;
     tokenHeaderName?: string;
     duration?: string | number;
     mult?: boolean;
