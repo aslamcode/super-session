@@ -251,7 +251,7 @@ class SuperSession {
      * Configure the super session
      * @param dbUrl
      */
-    async configure(options: ConfigureOptions, cb?: () => void): Promise<void> {
+    async configure(options: ConfigureOptions): Promise<void> {
         const { secret, duration, tokenHeaderName, mult, reqAttribute, collectionName, connection } = options;
 
         if (secret != undefined) {
@@ -285,9 +285,6 @@ class SuperSession {
         }
 
         this.createCron();
-
-        if (cb)
-            cb();
     }
 
     /**

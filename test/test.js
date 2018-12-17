@@ -20,7 +20,7 @@ describe('Mutiples sessions (without mongo connection)', () => {
             collectionName: 'xsessions'
         };
 
-        superSession.configure(result, () => {
+        superSession.configure(result).then(() => {
             const { secret, tokenHeaderName, duration, mult, reqAttribute, collectionName } = superSession;
             expect(result.secret).to.equal(secret);
             expect(result.tokenHeaderName).to.equal(tokenHeaderName);
@@ -287,11 +287,11 @@ describe('Single session (without mongo connection)', () => {
             tokenHeaderName: 'x-access-token',
             duration: 14,
             mult: false,
-            reqAttribute: 'user',
+            reqAttribute: 'session',
             collectionName: 'xsessions'
         };
 
-        superSession.configure(result, () => {
+        superSession.configure(result).then(() => {
             const { secret, tokenHeaderName, duration, mult, reqAttribute, collectionName } = superSession;
             expect(result.secret).to.equal(secret);
             expect(result.tokenHeaderName).to.equal(tokenHeaderName);
@@ -351,7 +351,7 @@ describe('Single session (without mongo connection)', () => {
                     }
                 };
                 superSession.decode()(req, undefined, () => {
-                    expect(req.user._id).to.equal(4321);
+                    expect(req.session._id).to.equal(4321);
                     task.next();
                 });
             })
@@ -362,7 +362,18 @@ describe('Single session (without mongo connection)', () => {
                     }
                 };
                 superSession.decode()(req, undefined, () => {
-                    expect(req.user._id).to.equal(432);
+                    expect(req.session._id).to.equal(432);
+                    task.next();
+                });
+            })
+            .do((task) => {
+                const req = {
+                    headers: {
+                        'x-access-token': undefined
+                    }
+                };
+                superSession.decode()(req, undefined, () => {
+                    expect(req.session).to.equal(undefined);
                     task.next();
                 });
             })
@@ -380,7 +391,7 @@ describe('Single session (without mongo connection)', () => {
                     }
                 };
                 superSession.decode()(req, undefined, () => {
-                    req.user.logout();
+                    req.session.logout();
                     task.next();
                 });
             })
@@ -391,7 +402,7 @@ describe('Single session (without mongo connection)', () => {
                     }
                 };
                 superSession.decode()(req, undefined, () => {
-                    req.user.logout();
+                    req.session.logout();
                     task.next();
                 });
             })
@@ -402,7 +413,7 @@ describe('Single session (without mongo connection)', () => {
                     }
                 };
                 superSession.decode()(req, undefined, () => {
-                    expect(req.user).to.equal(undefined);
+                    expect(req.session).to.equal(undefined);
                     task.next();
                 });
             })
@@ -413,7 +424,7 @@ describe('Single session (without mongo connection)', () => {
                     }
                 };
                 superSession.decode()(req, undefined, () => {
-                    expect(req.user).to.equal(undefined);
+                    expect(req.session).to.equal(undefined);
                     task.next();
                 });
             })
@@ -466,7 +477,7 @@ describe('Single session (without mongo connection)', () => {
                     }
                 };
                 superSession.decode()(req, undefined, () => {
-                    expect(req.user).to.equal(undefined);
+                    expect(req.session).to.equal(undefined);
                     task.next();
                 });
             })
@@ -477,7 +488,7 @@ describe('Single session (without mongo connection)', () => {
                     }
                 };
                 superSession.decode()(req, undefined, () => {
-                    expect(req.user).to.equal(undefined);
+                    expect(req.session).to.equal(undefined);
                     task.next();
                 });
             })

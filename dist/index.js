@@ -211,7 +211,7 @@ class SuperSession {
      * Configure the super session
      * @param dbUrl
      */
-    configure(options, cb) {
+    configure(options) {
         return __awaiter(this, void 0, void 0, function* () {
             const { secret, duration, tokenHeaderName, mult, reqAttribute, collectionName, connection } = options;
             if (secret != undefined) {
@@ -245,8 +245,6 @@ class SuperSession {
                 }
             }
             this.createCron();
-            if (cb)
-                cb();
         });
     }
     /**

@@ -1,327 +1,216 @@
-# Tesk
-It's a powerful and simple [node](http://nodejs.org) module of high order functions to execute synchronous tasks or asynchronous tasks.
+# Super Session
+The best of autentication with token and session on back-end in same module. Made with love to NodeJS.
 
 ## Installation
 
 ```bash
-$ npm install --save tesk
+$ npm install --save super-session
 ```
 
 ## Quick usage
 
+Back-end
 ```javascript
-const tesk = require('tesk').tesk;
-const result = new Array();
+const express = require('express');
+const { Router } = require('express');
+const superSession = require('super-session').superSession;
 
-tesk()
-    .do((task) => {
-        console.log('Do something 1');
-	    result.push(1);
-	
-	task.next(); // Go to next task
-    })
-    .do((task) => {
-        console.log('Do something 2');
-        result.push(2);
+const app = express();
+const router = Router();
 
-        task.next(); // Go to next task
-    })
-    .exec((err) => {
-        if (err) {
-            console.log(err);
+// Set to use super session
+this.app.use(superSession.decode());
+
+const superSessionOptions = {
+    // Connection is optional, without connection the session will be saved on cache
+    connection: {
+        dbUrl: 'your mongo connection', // Necessary
+        dbName: 'your db name like test or production' // Necessary
+    },
+    secret: 'your secret', // Default is get miliseconds since 1970
+    tokenHeaderName: 'x-access-token', // Default is access-token
+    duration: 15, // Default is 14 days
+    mult: true, // Default is false
+    reqAttribute: 'session', // Default is session to access user data use req.session. This value can be changed to any word, then use req.anything
+    collectionName: 'xsessions' // Default is sessions, just work with connection to mongo
+};
+
+// Configure the super session
+superSession.configure(superSessionOptions, () => {
+    createRoutes();
+});
+
+function createRoutes() {
+    // The routes of your app
+
+    // Get users
+    router.get('/users', function (req, res) {
+        // If user is logged, return users data
+        if (req.session) {
+            // Now you can access all user data
+            return res.json([{ name: 'Thor', email: 'thor@asgard.com' }]);
+        }
+        res.status(401).json({}); // User is not logged
+    });
+
+    // Login
+    router.get('/users/login', function (req, res) {
+        // The role to user make login, check password...
+        // ...
+
+        // If login it's ok, create the user session
+        // Is necessary use a unique identifier to create the session, like _id or email
+        // Any unique identifier
+
+        // The session data, put anything
+        const sessionData = { _id: '5c0fa99d2c75fb077adbb8ec', name: 'Thor', email: 'thor@asgard.com', permissions: ['list-users', 'all'] };
+
+        // Creating the session using the user._id
+        superSession.createSession(sessionData._id, sessionData)
+            .then((token) => {
+                return res.json({ userToken: token, userData: sessionData, logged: true });
+            });
+    });
+
+    // Logout
+    router.get('/users/logout', function (req, res) {
+        // If user is logged, make logout
+        if (req.user) {
+            req.session.logout().then(() => {
+                return res.json({ logged: false });
+            });
         }
         else {
-            console.log('All tasks finished!');
-            console.log('Result expected: [1, 2]');
-            console.log('Result:', result);
+            res.status(401).json({}); // User is not logged
         }
     });
+}
 ```
 
-## Guide
-* [do(callback) - sync](#do---sync-usage)
-* [do(callback) - async](#do---async-usage)
-* [forEach(array, callback) - sync](#foreach---sync-usage)
-* [forEach(array, callback) - async](#foreach---async-usage)
-* [accept a task](#accept-a-task)
-* [reject a task](#reject-a-task)
-* [another way](#another-way)
-* [what not to do](#what-not-to-do)
-* [tests](#tests)
-* [coming soon](#coming-soon)
-* [related projects](#related-projects)
-* [license](#license)
-
-## do(callback) - sync usage
-Do Sync it's a list of tasks that you can create to execute in sequence one by one. When the last task was finished, the tesk go to callback in exec function.
-
+Front-end
 ```javascript
-const tesk = require('tesk').tesk;
-const result = new Array();
+    // We will need request to the back-end and get the response, like this
+    // { userToken: token, userData: sessionData, logged: true }
+    
+    // Just example using angular HTTP client
+    // ...
+    http.post(`${API}/users/login`, { user: 'thor@asgard.com', password: 'loki' })
+        .subscribe((res) => {
+            storage.set('userToken', res.userToken); // Save the user token on storage
+        });
 
-tesk()
-    .do((task) => {
-        console.log('Do something 1');
-
-        // Simulating a asynchronous task like a database query
-        setTimeout(() => {
-            result.push(1);
-
-            task.next(); // Go to next task
-        }, 2000);
-    })
-    .do((task) => {
-        console.log('Do something 2');
-        result.push(2);
-
-        task.next(); // Go to next
-    })
-    .do((task) => {
-        console.log('Do something 3');
-        result.push(3);
-
-        task.next(); // Go to next task
-    })
-    .exec((err) => {
-        if (err) {
-            console.log(err);
-        }
-        else {
-            console.log('All tasks finished!');
-            console.log('Result expected: [1, 2, 3]');
-            console.log('Result:', result);
-        }
-    });
-```
-
-## do(callback) - async usage
-Do Async it's a list of tasks that you can create to execute without order. When all tasks was finished, the tesk go to callback in exec function. All tasks will be executed at same time (but not in parallel like a thread).
-
-```javascript
-const tesk = require('tesk').tesk;
-const result = new Array();
-
-tesk()
-    .do((task) => {
-        console.log('Do something 1');
-
-        // Simulating a asynchronous task like a database query
-        setTimeout(() => {
-            result.push(1);
-
-            task.next(); // Go to next task
-        }, 2000);
-    })
-    .do((task) => {
-        console.log('Do something 2');
-        result.push(2);
-
-        task.next(); // Go to next task
-    })
-    .do((task) => {
-        console.log('Do something 3');
-        result.push(3);
-
-        task.next(); // Go to next task
-    })
-    .execAsync((err) => {
-        if (err) {
-            console.log(err);
-        }
-        else {
-            console.log('All tasks finished!');
-            console.log('Result expected: [2, 3, 1]');
-            console.log('Result:', result);
-	}
-    });
-```
-
-## forEach(array, callback) - sync usage
-ForEach sync is for iterate an array in sequence item by item and wait the current task finish to go to next item on array. When all tasks was finished, the tesk go to callback in exec function.
-
-```javascript
-const tesk = require('tesk').tesk;
-const result = new Array();
-
-tesk()
-    .forEach([1, 2, 3, 4], (elem, index, task) => {
-        if (index == 2) {
-            setTimeout(() => {
-                result.push(elem);
-                task.next(); // Go to next task/item
-            }, 1);
-        }
-        else {
-            result.push(elem);
-            task.next(); // Go to next task/item
-        }
-    })
-    .exec((err) => {
-        if (err) {
-	        console.log(err);
-	    }
-        else {
-            console.log('All tasks finished!');
-            console.log('Result expected: [1, 2, 3, 4]');
-            console.log('Result:', result);
-        }
-    });
-```
-
-## forEach(array, callback) - async usage
-ForEach async is for iterate an array without order. When all tasks was finished, the tesk go to callback in exec function. All tasks will be executed at same time (but not in parallel like a thread).
-
-```javascript
-const tesk = require('tesk').tesk;
-const result = '';
-
-tesk()
-    .forEach([1, 2, 3, 4], (elem, index, task) => {
-        if (index == 2) {
-            setTimeout(() => {
-                result += elem;
-                task.next(); // Go to next task/item
-            }, 1);
-        }
-        else {
-            result += elem;
-            task.next();
-        }
-    })
-    .execAsync((err) => {
-    	if (err) {
-	        console.log(err);
-        }
-        else {
-            console.log('All tasks finished!');
-            console.log('Result expected: [1, 2, 4, 3]');
-            console.log('Result:', result);
-        }
-    });
-```
-
-## Accept a task
-To accept a task just call the method next() from parameter task received on callback function. Error is null if all tasks was accepted.
-
-```javascript
-tesk()
-    .do((task) => {
-	    task.next(); // Go to next task
-    })
-    .exec((err) => {
-        if (err) {
-	        console.log(err);
-        }
-        else {
-            console.log('All tasks finished!');
-        }
-    });
-```
-
-## Reject a task
-To reject a task just call the method reject() from parameter task received on callback function. When a task was rejected all tasks will be canceled and the callback function receive a personalized argument error.
-
-```javascript
-tesk()
-    .do((task) => {
-	    task.reject('Error on execute query'); // Reject task and send a personalized error
-    })
-    .exec((err) => {
-    	if (err) {
-	        console.log(err);
-        }
-        else {
-            console.log('All tasks finished!');
-        }
-    });
-```
-
-## Another way
-Exist another way to use. Tesk have a finally and catch function. If you use finally and catch, you don't use a callback argument on exec() function
-
-```javascript
-tesk()
-    .do((task) => {
-        console.log('Do something 1');
-        
-        task.next();
-    })
-    .do((task) => {
-        console.log('Do something 2');
-        
-        task.next();
-    })
-    .finally(() => {
-	    console.log('All tasks finished!');
-    })
-    .catch((err) => {
-    	console.log('Errors', err);
-    })
-    .exec();
-```
-
-## What not to do
-Never use do() and forEach() together. It's doesn't work.
-
-```javascript
-tesk()
-    .do((task) => {
-	    task.reject('Error on execute query'); // Reject task and send a personalized error
-    })
-    .forEach([1, 2, 3, 4], (elem, index, task) => {
-        console.log(elem, index);
-        task.next(); // Go to next task/item
-    })
-    .exec((err) => {
-    	if (err) {
-	        console.log(err);
-        }
-        else {
-            console.log('All tasks finished!');
-        }
-    });
-```
-
-If you need use do() and forEach() you can just call tesk() again.
-
-```javascript
-tesk()
-    .do((task) => {
-	task.reject('Error on execute query'); // Reject task and send a personalized error
-    })
-    .exec((err) => {
-    	if (err) {
-	        console.log(err);
-        }
-        else {
-            console.log('Starting a forEach() tasks');
-            
-            tesk()
-                .forEach([1, 2, 3, 4], (elem, index, task) => {
-                    if (index == 2) {
-                        setTimeout(() => {
-                            result += elem;
-                            task.next(); // Go to next task/item
-                        }, 1);
-                    }
-                    else {
-                        result += elem;
-                        task.next();
-                    }
-                })
-                .execAsync((err) => {
-                    if (err) {
-                        console.log(err);
-                    }
-                    else {
-                        console.log('All tasks finished!');
-                        console.log('Result expected: [1, 2, 4, 3]');
-                        console.log('Result:', result);
+    // And last we will get the token on storage and put on headers to each request
+    // To do this, use the interceptor
+    // The header name would be equal the option tokenHeaderName on back-end
+    // Example
+    // ...
+    intercept(req, next) {
+        return Observable.create((obs) => {
+            const token = storage.get('userToken');
+            if (token) {
+                const cloneReq = req.clone({
+                    setHeaders: {
+                        'x-access-token': token
                     }
                 });
-        }
+                return obs.next(next.handle(cloneReq));
+            }
+            return obs.next(next.handle(req));
+        });
+    }
+``` 
+
+## Guide
+* [Why use](#why-use)
+* [Configure](#configure)
+* [Decode](#decode)
+* [Create session](#create-session)
+* [Delete user sessions](#delete-user-sessions)
+* [Logout](#logout)
+* [Tests](#tests)
+* [Related projects](#related-projects)
+* [License](#license)
+
+## Why use
+It's fast cause don't send the user data to front and save a session on cache. It's Safe cause save the session on your database.
+And have few options to use and control multiples sessions or a unique session by user.
+
+## Configure
+```javascript
+    // Configure the super session, will need configure in express file
+    // ...
+
+    // Set to use super session
+    this.app.use(superSession.decode());
+
+    const superSessionOptions = {
+        // Connection is optional, without connection the session will be saved on cache
+        connection: {
+            dbUrl: 'your mongo connection', // Necessary
+            dbName: 'your db name like test or production' // Necessary
+        },
+        secret: 'your secret', // Default is get miliseconds since 1970
+        tokenHeaderName: 'x-access-token', // Default is access-token
+        duration: 15, // Default is 14 days
+        mult: true, // Default is false
+        reqAttribute: 'session', // Default is session to access user data use req.session. This value can be changed to any word, then use req.anything
+        collectionName: 'xsessions' // Default is sessions, just work with connection to mongo
+    };
+
+    // Configure the super session
+    superSession.configure(superSessionOptions, () => {
+        // Continue your server configuration
+        // ...
     });
 ```
+
+## Decode
+```javascript
+    // Set to use decode the super session
+    // The server need this to decode the token of user
+    this.app.use(superSession.decode());
+```
+
+## Create session
+```javascript
+    // Is necessary use a unique identifier to create the session, like _id or email
+    // Any unique identifier
+
+    // The session data, put anything
+    const sessionData = { _id: '5c0fa99d2c75fb077adbb8ec', name: 'Thor', email: 'thor@asgard.com', permissions: ['list-users', 'all'] };
+
+    superSession.createSession(sessionData._id, sessionData)
+        .then((token) => {
+            console.log('userToken', token);
+        });
+```
+
+## Delete user sessions
+```javascript
+    // Use the session id to delete all sessions of a user. We was used the user id, then send the userId
+    superSession.deleteUserSessions('5c0fa99d2c75fb077adbb8ec')
+        .then(() => {
+            console.log('Delete all sessions of user 5c0fa99d2c75fb077adbb8ec');
+        });
+    
+```
+
+## Logout
+```javascript
+    // To user make logout, just check exist the session
+    // And call req.session.logout() (It's a promise)
+    router.get('/users/logout', function (req, res) {
+        // If user is logged, make logout
+        if (req.user) {
+            req.session.logout().then(() => {
+                return res.json({ logged: false });
+            });
+        }
+        else {
+            res.status(401).json({}); // User is not logged
+        }
+    });
+``` 
 
 ## Tests
 To run the test suite, first install the dependencies, then run npm run test:
@@ -331,12 +220,8 @@ $ npm install
 $ npm run test
 ```
 
-## Coming soon
-* tesk.try() - Like a promise.race()
-* exec() or execAsync() - Receive in callback result array of all tasks. Then you will can use task.next(12), and when all tasks was finished you can receive error and result parameters. Result will be equals an array [12]
-
 ## Related projects
-[async](https://github.com/caolan/async)
+[express-session](https://github.com/expressjs/session)
 
 ## License
 [MIT](LICENSE)

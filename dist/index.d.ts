@@ -52,7 +52,7 @@ declare class SuperSession {
      * Configure the super session
      * @param dbUrl
      */
-    configure(options: ConfigureOptions, cb?: () => void): Promise<void>;
+    configure(options: ConfigureOptions): Promise<void>;
     /**
      * Expire a unique user session
      * @param sessionId
