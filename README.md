@@ -1,5 +1,5 @@
 # Super Session
-The best of autentication with token and session on back-end in same module. Made with love to NodeJS.
+The best autentication with token and session on back-end in same module. Made with love to NodeJS.
 
 ## Installation
 
@@ -38,7 +38,7 @@ const superSessionOptions = {
     // Connection is optional, without connection the session will be saved on cache
     connection: {
         dbUrl: 'your mongo connection', // Necessary
-        dbName: 'your db name like test or production' // Necessary
+        dbName: 'your db name (test or production)' // Necessary
     },
     secret: 'your secret', // Necessary
     tokenHeaderName: 'x-access-token',
@@ -58,7 +58,7 @@ function createRoutes() {
 
     // Get users
     router.get('/users', function (req, res) {
-        // If user is logged, return users data
+        // If user is logged, return users' data
         if (req.session) {
             // Now you can access all user data
             return res.json([{ name: 'Thor', email: 'thor@asgard.com' }]);
@@ -72,12 +72,12 @@ function createRoutes() {
         // ...
 
         // If login it's ok, create the user session
-        // Is necessary use a unique identifier to create the session, like _id or email
+        // Is necessary use a unique identifier to create the session (_id or email)
         // Any unique identifier
 
         // The session data, put anything
         const sessionData = { 
-            _id: '5c0fa99d2c75fb077adbb8ec', 
+            _id: 'USER_ID', 
             name: 'Thor', 
             email: 'thor@asgard.com', 
             permissions: ['list-users', 'all'] 
@@ -135,7 +135,7 @@ intercept(req, next) {
 ``` 
 
 ## Why use
-It's fast cause don't send the user data to front and save a session on cache. It's Safe cause save the session on your database.
+It's fast because don't send the user data to front and save a session on cache. It's Safe because save the session on your database.
 And have few options to use and control multiples sessions or a unique session by user.
 
 ## Configure
@@ -148,9 +148,9 @@ this.app.use(superSession.decode());
 const superSessionOptions = {
     connection: {
         dbUrl: 'your mongo connection',
-        dbName: 'your db name like test or production'
+        dbName: 'your db name (test or production)'
     },
-    secret: 'your secret',
+    secret: 'your secret', // any word
     tokenHeaderName: 'x-access-token',
     duration: 15,
     mult: true,
@@ -166,26 +166,26 @@ superSession.configure(superSessionOptions, () => {
 ```
 
 ## Options
-Avaliable options bellow to call configure function
+Avaliable bellow options to configure the super session
 ```javacript
 {
     // Connection is optional, without connection the session will be saved on cache
     "connection": {
         "dbUrl": "your mongo connection", // Necessary
-        "dbName": "your db name like test or production" // Necessary
+        "dbName": "your db name (test, production or ETC.)" // Necessary
     },
 
     // Necessary
-    "secret": "your secret",
+    "secret": "your secret", 
 
     // Optional, default is access-token
     "tokenHeaderName": "x-access-token",
 
-    // Optional, default is 14
-    "duration": 15,
+    // Optional, default is 14 days
+    "duration": 15, // days
 
     // Optional, default is false
-    // When true, the user can log in many computers and browsers and all sessions will be active
+    // When true, the user can log in many devices and all sessions will be active
     "mult": true, 
 
     // Opitional, default is session. Can be change to any word.
@@ -205,10 +205,10 @@ this.app.use(superSession.decode());
 ```
 
 ## Create session
-Is necessary use a unique identifier to create the session, like _id or email. Any unique identifier
+It's necessary use a unique identifier to create the session, _id, email ETC. as a unique identifier
 ```javascript
 // The session data, put anything
-const sessionData = { _id: '5c0fa99d2c75fb077adbb8ec', name: 'Thor', email: 'thor@asgard.com', permissions: ['list-users', 'all'] };
+const sessionData = { _id: 'USER_ID', name: 'Thor', email: 'thor@asgard.com', permissions: ['list-users', 'all'] };
 
 superSession.createSession(sessionData._id, sessionData)
     .then((token) => {
@@ -217,16 +217,16 @@ superSession.createSession(sessionData._id, sessionData)
 ```
 
 ## Delete user sessions
-Use the session id to delete all sessions of a user. We was used the user id, then send the userId
+we've used the 'user id' to delete all user sessions
 ```javascript
-superSession.deleteUserSessions('5c0fa99d2c75fb077adbb8ec')
+superSession.deleteUserSessions('USER_ID')
     .then(() => {
-        console.log('Delete all sessions of user 5c0fa99d2c75fb077adbb8ec');
+        console.log('Delete all sessions of user USER_ID');
     });
 ```
 
 ## Logout
-To user make logout, just check exist the session and call req.session.logout() (It's a promise)
+To user logout, just check exist the session and call req.session.logout() (It's a promise)
 ```javascript
 router.get('/users/logout', function (req, res) {
     // If user is logged, make logout
