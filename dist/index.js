@@ -214,25 +214,25 @@ class SuperSession {
     configure(options, cb) {
         return __awaiter(this, void 0, void 0, function* () {
             const { secret, duration, tokenHeaderName, mult, reqAttribute, collectionName, connection } = options;
-            if (secret) {
+            if (secret != undefined) {
                 this.secret = secret;
             }
-            if (tokenHeaderName) {
+            if (tokenHeaderName != undefined) {
                 this.tokenHeaderName = tokenHeaderName;
             }
-            if (duration) {
+            if (duration != undefined) {
                 this.duration = Number(duration);
             }
-            if (mult) {
+            if (mult != undefined) {
                 this.mult = mult;
             }
-            if (reqAttribute) {
+            if (reqAttribute != undefined) {
                 this.reqAttribute = reqAttribute;
             }
-            if (collectionName) {
+            if (collectionName != undefined) {
                 this.collectionName = collectionName;
             }
-            if (connection) {
+            if (connection != undefined) {
                 this.connectionOptions = connection;
                 try {
                     this.db = yield mongo_connection_1.default.connect(connection.dbUrl, connection.dbName);
