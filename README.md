@@ -167,7 +167,7 @@ superSession.configure(superSessionOptions, () => {
 
 ## Options
 Avaliable options bellow to call configure function
-```json
+```javacript
 {
     // Connection is optional, without connection the session will be saved on cache
     "connection": {
