@@ -1,6 +1,6 @@
 {
 	"name": "super-session",
-	"version": "1.0.0",
+	"version": "1.1.0",
 	"description": "The best of autentication with token and session on back-end in same module. Made with love to NodeJS.",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
