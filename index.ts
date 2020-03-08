@@ -91,17 +91,17 @@ class SuperSession {
                             if (res.value) {
                                 delete res._id;
                                 session = { sessionId: sessionId, sessions: res.value.sessions };
-                                session.sessions.push({ data: sessionData, expiresAt: expiresAt, createdAt: createdAt });
+                                session.sessions.push({ data: sessionData, expiresAt, createdAt });
                             }
                             else {
-                                session = { sessionId: sessionId, sessions: [{ data: sessionData, expiresAt: expiresAt, createdAt: createdAt }] };
+                                session = { sessionId: sessionId, sessions: [{ data: sessionData, expiresAt, createdAt }] };
                             }
 
                             // Set the session
                             this.set(sessionId, session);
 
                             // Create the token access
-                            resolve(jwt.sign({ sessionId: sessionId, createdAt: createdAt }, this.secret));
+                            resolve(jwt.sign({ sessionId: sessionId, createdAt, expiresAt }, this.secret));
                         }
                     );
                 }
@@ -130,13 +130,13 @@ class SuperSession {
                             }
 
                             // Create user session
-                            const session: any = { sessionId: sessionId, sessions: [{ data: sessionData, expiresAt: expiresAt, createdAt: createdAt }] };
+                            const session: any = { sessionId: sessionId, sessions: [{ data: sessionData, expiresAt, createdAt }] };
 
                             // Set the session
                             this.set(sessionId, session);
 
                             // Create the token access
-                            resolve(jwt.sign({ sessionId: sessionId, createdAt: createdAt }, this.secret));
+                            resolve(jwt.sign({ sessionId: sessionId, createdAt, expiresAt }, this.secret));
                         }
                     );
                 }
@@ -150,20 +150,20 @@ class SuperSession {
                         this.set(sessionId, session);
                     }
 
-                    session.sessions.push({ data: sessionData, expiresAt: expiresAt, createdAt: createdAt });
+                    session.sessions.push({ data: sessionData, expiresAt: expiresAt, createdAt });
 
                     // Create the access token
-                    resolve(jwt.sign({ sessionId: sessionId, createdAt: createdAt }, this.secret));
+                    resolve(jwt.sign({ sessionId: sessionId, createdAt, expiresAt }, this.secret));
                 }
                 else {
                     // Create user session
-                    const session: any = { sessionId: sessionId, sessions: [{ data: sessionData, expiresAt: expiresAt, createdAt: createdAt }] };
+                    const session: any = { sessionId: sessionId, sessions: [{ data: sessionData, expiresAt, createdAt }] };
 
                     // Set the session
                     this.set(sessionId, session);
 
                     // Create the token access
-                    resolve(jwt.sign({ sessionId: sessionId, createdAt: createdAt }, this.secret));
+                    resolve(jwt.sign({ sessionId: sessionId, createdAt, expiresAt }, this.secret));
                 }
             }
         });
