@@ -43,7 +43,7 @@ class SuperSession {
 
     constructor() {
         this.sessions = new Object();
-        this.tokenHeaderName = 'access-token';
+        this.tokenHeaderName = 'authorization';
         this.secret = new Date().getTime().toString();
         this.duration = 14;
         this.mult = false;
@@ -255,7 +255,7 @@ class SuperSession {
         const { secret, duration, tokenHeaderName, mult, reqAttribute, collectionName, connection } = options;
 
         if (secret == undefined || secret == '') {
-            throw 'Secret option is necessary on superSession.configure() options object.'
+            throw 'Secret option is necessary on superSession.configure() options object.';
         }
         else {
             this.secret = secret;

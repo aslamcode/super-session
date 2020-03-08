@@ -41,7 +41,7 @@ const superSessionOptions = {
         dbName: 'your db name (test or production)' // Necessary
     },
     secret: 'your secret', // Necessary
-    tokenHeaderName: 'x-access-token',
+    tokenHeaderName: 'authorization',
     duration: 15,
     mult: true,
     reqAttribute: 'session',
@@ -151,7 +151,7 @@ const superSessionOptions = {
         dbName: 'your db name (test or production)'
     },
     secret: 'your secret', // any word
-    tokenHeaderName: 'x-access-token',
+    tokenHeaderName: 'authorization',
     duration: 15,
     mult: true,
     reqAttribute: 'session',
@@ -178,8 +178,8 @@ Avaliable bellow options to configure the super session
     // Necessary
     "secret": "your secret", 
 
-    // Optional, default is access-token
-    "tokenHeaderName": "x-access-token",
+    // Optional, default is authorization
+    "tokenHeaderName": "authorization",
 
     // Optional, default is 14 days
     "duration": 15, // days
