@@ -38,7 +38,7 @@ const moment = require('moment');
 class SuperSession {
     constructor() {
         this.sessions = new Object();
-        this.tokenHeaderName = 'access-token';
+        this.tokenHeaderName = 'authorization';
         this.secret = new Date().getTime().toString();
         this.duration = 14;
         this.mult = false;
@@ -79,15 +79,15 @@ class SuperSession {
                         if (res.value) {
                             delete res._id;
                             session = { sessionId: sessionId, sessions: res.value.sessions };
-                            session.sessions.push({ data: sessionData, expiresAt: expiresAt, createdAt: createdAt });
+                            session.sessions.push({ data: sessionData, expiresAt, createdAt });
                         }
                         else {
-                            session = { sessionId: sessionId, sessions: [{ data: sessionData, expiresAt: expiresAt, createdAt: createdAt }] };
+                            session = { sessionId: sessionId, sessions: [{ data: sessionData, expiresAt, createdAt }] };
                         }
                         // Set the session
                         this.set(sessionId, session);
                         // Create the token access
-                        resolve(jwt.sign({ sessionId: sessionId, createdAt: createdAt }, this.secret));
+                        resolve(jwt.sign({ sessionId: sessionId, createdAt, expiresAt }, this.secret));
                     });
                 }
                 else {
@@ -110,11 +110,11 @@ class SuperSession {
                             return reject(err);
                         }
                         // Create user session
-                        const session = { sessionId: sessionId, sessions: [{ data: sessionData, expiresAt: expiresAt, createdAt: createdAt }] };
+                        const session = { sessionId: sessionId, sessions: [{ data: sessionData, expiresAt, createdAt }] };
                         // Set the session
                         this.set(sessionId, session);
                         // Create the token access
-                        resolve(jwt.sign({ sessionId: sessionId, createdAt: createdAt }, this.secret));
+                        resolve(jwt.sign({ sessionId: sessionId, createdAt, expiresAt }, this.secret));
                     });
                 }
             }
@@ -126,17 +126,17 @@ class SuperSession {
                         session = { sessionId: sessionId, sessions: [] };
                         this.set(sessionId, session);
                     }
-                    session.sessions.push({ data: sessionData, expiresAt: expiresAt, createdAt: createdAt });
+                    session.sessions.push({ data: sessionData, expiresAt: expiresAt, createdAt });
                     // Create the access token
-                    resolve(jwt.sign({ sessionId: sessionId, createdAt: createdAt }, this.secret));
+                    resolve(jwt.sign({ sessionId: sessionId, createdAt, expiresAt }, this.secret));
                 }
                 else {
                     // Create user session
-                    const session = { sessionId: sessionId, sessions: [{ data: sessionData, expiresAt: expiresAt, createdAt: createdAt }] };
+                    const session = { sessionId: sessionId, sessions: [{ data: sessionData, expiresAt, createdAt }] };
                     // Set the session
                     this.set(sessionId, session);
                     // Create the token access
-                    resolve(jwt.sign({ sessionId: sessionId, createdAt: createdAt }, this.secret));
+                    resolve(jwt.sign({ sessionId: sessionId, createdAt, expiresAt }, this.secret));
                 }
             }
         });
