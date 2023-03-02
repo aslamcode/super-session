@@ -28,7 +28,7 @@
 	"homepage": "https://github.com/aslamcode/super-session#readme",
 	"devDependencies": {
 		"chai": "^4.1.2",
-		"mocha": "^5.2.0",
+		"mocha": "^10.2.0",
 		"tesk": "^1.0.2",
 		"typescript": "^3.0.1"
 	},
